@@ -3,6 +3,11 @@ package gradient
 import (
 	"fmt"
 	"testing"
+
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 )
 
 func square(x float64) float64     { return x * x }
@@ -37,4 +42,45 @@ func ExampleDifferenceQuotient() {
 	//4.100000000000001
 	//1.0000000000000009
 	//2.0000000000000018
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+
+	p.Title.Text = "Approximating a derivative with a difference quotient"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	err = plotutil.AddLinePoints(p,
+		"Function", addDerivative(-10, 10, square),
+		"Actual", addDerivative(-10, 10, derivative),
+		"Estimate", addDerivativeEstimative(-10, 10),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	// Save the plot to a PNG file.
+	if err := p.Save(4*vg.Inch, 4*vg.Inch, "derivatives.png"); err != nil {
+		panic(err)
+	}
+}
+
+func addDerivative(start, end int, fn func(float64) float64) plotter.XYs {
+	pts := make(plotter.XYs, end-start)
+	for i := range pts {
+		pts[i].X = float64(i)
+		pts[i].Y = float64(fn(pts[i].X))
+	}
+	return pts
+}
+
+func addDerivativeEstimative(start, end float64) plotter.XYs {
+	pts := make(plotter.XYs, int(end-start))
+	for i := range pts {
+		pts[i].X = float64(i)
+		pts[i].Y = DifferenceQuotient(square, pts[i].X, 0.1)
+	}
+	return pts
 }
