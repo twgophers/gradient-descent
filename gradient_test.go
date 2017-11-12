@@ -2,17 +2,38 @@ package gradient
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
+
+	"github.com/twgophers/collections"
 )
 
 func square(x float64) float64     { return x * x }
 func increment(x float64) float64  { return x + 1 }
 func derivative(x float64) float64 { return 2 * x }
+
+func TestSumOfSquares(t *testing.T) {
+	cases := []struct {
+		input collections.Vector
+		want  collections.Vector
+	}{
+		{collections.Vector{1, 2, 3}, collections.Vector{2, 4, 6}},
+		{collections.Vector{0}, collections.Vector{0}},
+	}
+
+	for _, c := range cases {
+		got := SumOfSquares(c.input)
+		if !reflect.DeepEqual(c.want, got) {
+			t.Errorf("SumOfSquares(%v) expected: %v but got %v", c.input, c.want,
+				got)
+		}
+	}
+}
 
 func TestDifferenceQuotient(t *testing.T) {
 	cases := []struct {
